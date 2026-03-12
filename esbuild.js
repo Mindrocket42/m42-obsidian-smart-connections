@@ -53,6 +53,18 @@ const markdown_plugin = {
     });
   }
 };
+
+// Stub plugin for smart-plugins-obsidian (Pro-only module)
+const smart_plugins_stub = {
+  name: 'smart-plugins-stub',
+  setup(build) {
+    build.onResolve({ filter: /^smart-plugins-obsidian/ }, (args) => {
+      return {
+        path: path.resolve(process.cwd(), 'src/stubs/smart-plugins-obsidian.js'),
+      };
+    });
+  }
+};
 // Build the project
 const copyright_banner = create_banner(package_json);
 esbuild.build({
@@ -81,7 +93,7 @@ esbuild.build({
   loader: {
     '.css': 'text',
   },
-  plugins: [markdown_plugin],
+  plugins: [markdown_plugin, smart_plugins_stub],
   banner: { js: copyright_banner },
 }).then(() => {
   console.log('Build complete');

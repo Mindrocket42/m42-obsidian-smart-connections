@@ -26,12 +26,24 @@ import { LookupItemView } from "./views/lookup_item_view.js";
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 
+// Extended embedding model providers (Ollama, LM Studio, OpenRouter)
+import embedding_models from "./collections/embedding_models.js";
+import { patch_embedding_provider_options } from "./utils/patch_provider_options.js";
+
+// Patch provider options to enable additional embedding providers
+patch_embedding_provider_options();
+
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
   ReleaseNotesView = ReleaseNotesView;
   get smart_env_config() {
     if(!this._smart_env_config){
       this._smart_env_config = smart_env_config;
+      // Add extended embedding model providers (Ollama, LM Studio, OpenRouter)
+      if (!this._smart_env_config.collections) {
+        this._smart_env_config.collections = {};
+      }
+      this._smart_env_config.collections.embedding_models = embedding_models;
     }
     return this._smart_env_config;
   }

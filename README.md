@@ -67,6 +67,74 @@ Watch the [feature walkthrough slideshow](https://smartconnections.app/story/sma
 - [Pro plugins overview](https://smartconnections.app/pro-plugins/?utm_source=connections-readme)
 - [Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme)
 
+## Fork: Extended Embedding Providers
+
+This fork adds support for additional embedding model providers that work **without the Pro plugin**, enabling fully local and corporate-friendly deployments.
+
+### Added Providers
+
+| Provider | Type | Setup Required |
+|----------|------|----------------|
+| **Ollama** | Local | [Ollama](https://ollama.ai) running + embedding model pulled |
+| **LM Studio** | Local | [LM Studio](https://lmstudio.ai) with local server enabled |
+| **OpenRouter** | Cloud API | API key from [openrouter.ai](https://openrouter.ai) |
+| **Azure OpenAI** | Cloud API | Azure OpenAI resource, deployment name, and API key |
+
+### Why This Fork?
+
+The upstream Smart Connections plugin uses **Transformers.js** (via `@huggingface/transformers`) for local embeddings, which downloads models from HuggingFace at runtime. If your network blocks HuggingFace (e.g., corporate firewalls), embeddings will fail silently.
+
+This fork:
+- Exposes Ollama, LM Studio, and OpenRouter adapters that already exist in the jsbrains codebase but are gated behind the Pro plugin
+- Adds a new Azure OpenAI adapter
+- Patches the UI to remove Pro-only restrictions from embedding provider dropdowns
+- Stubs the Pro-only `smart-plugins-obsidian` module so the plugin builds and loads without it
+- Fixes a bug where the embedding queue processing flag gets stuck after model load failures
+
+### Quick Start with Ollama (Recommended for Local Use)
+
+1. Install [Ollama](https://ollama.ai)
+2. Pull an embedding model:
+   ```bash
+   ollama pull nomic-embed-text
+   ```
+3. Build and install the plugin (see [Building from Source](#building-from-source))
+4. In Obsidian: Settings → Smart Connections → Smart Environment → Embedding Models
+5. Click "+ New", select "Ollama", configure host (default: `http://localhost:11434`)
+6. Select `nomic-embed-text` as the model
+7. Embeddings will generate automatically for all vault notes
+
+### Building from Source
+
+This plugin requires a monorepo setup with sibling repositories. See [BUILD.md](BUILD.md) for full instructions.
+
+**Quick build:**
+```bash
+# One-time setup (clone sibling repos + install deps)
+cd /path/to/projects
+git clone https://github.com/brianpetro/jsbrains.git
+git clone https://github.com/brianpetro/obsidian-smart-env.git
+git clone https://github.com/brianpetro/smart-context-obsidian.git
+cd jsbrains && npm install && cd ..
+cd obsidian-smart-env && npm install && cd ..
+cd obsidian-smart-connections && npm install
+
+# Build and install
+npm run build
+cp dist/* /path/to/vault/.obsidian/plugins/smart-connections/
+```
+
+Restart Obsidian after copying files.
+
+### Files Changed
+
+- `src/adapters/embedding-model/` — Adapter wrappers for Ollama, LM Studio, OpenRouter, Azure OpenAI
+- `src/collections/embedding_models.js` — Extended collection registering all providers
+- `src/utils/patch_provider_options.js` — Patches UI to remove Pro-only restrictions
+- `src/stubs/smart-plugins-obsidian.js` — Stub for Pro-only module
+- `esbuild.js` — esbuild plugin to resolve Pro module to stub
+- `src/main.js` — Integration of extended providers
+
 ## Getting started
 ### It "just works"
 Surface relationships between notes with zero-setup.
