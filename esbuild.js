@@ -34,6 +34,7 @@ fs.copyFileSync(manifest_path, path.join(process.cwd(), 'dist', 'manifest.json')
 fs.copyFileSync(styles_path, path.join(process.cwd(), 'dist', 'styles.css'));
 
 const destination_vaults = process.env.DESTINATION_VAULTS?.split(',') || [];
+const default_open_router_api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY || '';
 
 // get first argument as entry point
 const entry_point = process.argv[2] || 'src/main.js';
@@ -88,7 +89,7 @@ esbuild.build({
     'url',
   ],
   define: {
-    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
+    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(default_open_router_api_key),
   },
   loader: {
     '.css': 'text',
@@ -99,7 +100,13 @@ esbuild.build({
   console.log('Build complete');
   const release_file_paths = [manifest_path, styles_path, main_path];
   for(let vault of destination_vaults) {
-    const destDir = path.join(process.cwd(), '..', vault, '.obsidian', 'plugins', 'smart-connections');
+    const vault_path = (vault || '').trim();
+    if(!vault_path) continue;
+    const resolved_vault_path = path.isAbsolute(vault_path)
+      ? path.normalize(vault_path)
+      : path.resolve(process.cwd(), '..', vault_path)
+    ;
+    const destDir = path.join(resolved_vault_path, '.obsidian', 'plugins', 'smart-connections');
     console.log(`Copying files to ${destDir}`);
     fs.mkdirSync(destDir, { recursive: true });
     // create .hotreload file if it doesn't exist

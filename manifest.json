@@ -1,8 +1,8 @@
 {
   "id": "smart-connections",
-  "name": "Smart Connections",
+  "name": "Smart Connections (Lite Sync Build)",
   "author": "Brian Petro",
-  "description": "Chat with your notes & see links to related content with Local or Remote models.",
+  "description": "Lite sync build: manual/hybrid indexing with disabled live watchers by default.",
   "minAppVersion": "1.1.0",
   "authorUrl": "https://smartconnections.app",
   "isDesktopOnly": false,

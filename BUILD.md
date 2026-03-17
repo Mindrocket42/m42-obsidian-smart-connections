@@ -8,19 +8,33 @@ This guide explains how to build the Smart Connections plugin from source with e
 - npm v9+
 - Git
 
+## Windows One-Step Build
+
+From this folder, run:
+
+```bat
+BUILD.bat
+```
+
+The script installs dependencies for sibling repos (including a local `smart-plugins-obsidian` stub when needed) and then builds this plugin.
+
 ## Repository Structure
 
 The project uses npm workspaces with sibling repositories:
 
 ```
-projects/ext/
-├── obsidian-smart-connections/   # Main plugin
-├── jsbrains/                     # Core smart-* packages
-├── obsidian-smart-env/           # Obsidian environment wrapper
-└── smart-context-obsidian/       # Context plugin
+B:/OPENCODE/smart-connections/
+├── m42-obsidian-smart-connections/   # Main plugin (this folder)
+├── jsbrains/                         # Core smart-* packages
+├── obsidian-smart-env/               # Obsidian environment wrapper
+├── smart-context-obsidian/           # Context plugin
+└── smart-plugins-obsidian/           # Local stub or private repo
 ```
 
 ## Initial Setup (One-time)
+
+Note: this workspace uses `m42-obsidian-smart-connections` as the plugin folder name.
+If your clone is named `obsidian-smart-connections`, use that folder name in the commands below.
 
 ### 1. Clone Required Repositories
 
@@ -45,13 +59,13 @@ cd jsbrains && npm install && cd ..
 cd obsidian-smart-env && npm install && cd ..
 
 # Install main plugin dependencies
-cd obsidian-smart-connections && npm install
+cd m42-obsidian-smart-connections && npm install
 ```
 
 ### 3. Create Environment File
 
 ```bash
-cd obsidian-smart-connections
+cd m42-obsidian-smart-connections
 echo 'DEFAULT_OPEN_ROUTER_API_KEY=""' > .env
 ```
 
@@ -60,7 +74,7 @@ echo 'DEFAULT_OPEN_ROUTER_API_KEY=""' > .env
 ### Standard Build
 
 ```bash
-cd obsidian-smart-connections
+cd m42-obsidian-smart-connections
 npm run build
 ```
 
@@ -119,7 +133,7 @@ Configure `.env` as shown above, then each build auto-deploys.
 ## Rebuilding After Changes
 
 ```bash
-cd obsidian-smart-connections
+cd m42-obsidian-smart-connections
 npm run build
 ```
 
@@ -135,12 +149,19 @@ If build fails with "Cannot find package X":
 # Reinstall all dependencies
 cd jsbrains && npm install && cd ..
 cd obsidian-smart-env && npm install && cd ..
-cd obsidian-smart-connections && rm -rf node_modules && npm install
+cd m42-obsidian-smart-connections && rm -rf node_modules && npm install
 ```
 
 ### smart-plugins-obsidian Error
 
-This is a private Pro repository. It's marked as external in the build and won't affect core functionality.
+`obsidian-smart-env` references `../smart-plugins-obsidian` as a local dependency.
+If you do not have access to the private repo, create a local stub:
+
+```bash
+mkdir -p ../smart-plugins-obsidian
+printf '{"name":"smart-plugins-obsidian","version":"0.0.0-local-stub","type":"module","main":"index.js"}' > ../smart-plugins-obsidian/package.json
+printf 'export default {};' > ../smart-plugins-obsidian/index.js
+```
 
 ## Extended Providers
 
